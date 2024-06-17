@@ -1,0 +1,13 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>POC: FaceAPI</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h1>Cadastro de Faces</h1>
+  <p>Por favor, carregue uma foto que contenha uma ou mais faces.</p>
+  <ion-button expand="full" (click)="handleUpload()">Enviar Foto</ion-button>
+
+  <div id="facesContainer"></div>
+</ion-content>
