@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PhotoService } from '../../services/photo.service';
 import { FaceapiService } from 'src/app/services/faceapi.service';
-import { NavController } from '@ionic/angular';
+import { LoadingController, NavController } from '@ionic/angular';
 import { NavParamsService } from 'src/app/services/nav-params.service';
 
 @Component({
@@ -13,6 +13,7 @@ export class HomePage implements OnInit {
 
   constructor(
     public navCtrl: NavController,
+    private loadingCtrl: LoadingController,
     private navParams: NavParamsService,
     public photoService: PhotoService,
     private faceApiService: FaceapiService
@@ -21,8 +22,17 @@ export class HomePage implements OnInit {
   ngOnInit() {}
 
   async handleUpload() {
+    const loading = await this.loadingCtrl.create({
+      message: 'Identificando as faces, aguarde...',
+    });
+    
     const file = await this.photoService.uploadFile();
+    
+    loading.present();
+
     const detections = await this.faceApiService.detectFaces(file);
+
+    loading.dismiss();
 
     this.navParams.setParams({ detections, file });
     this.navCtrl.navigateForward('/identify-faces');

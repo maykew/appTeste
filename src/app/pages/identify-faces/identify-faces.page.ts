@@ -46,7 +46,6 @@ export class IdentifyFacesPage implements OnInit {
 
   }
 
-
   async handleSave() {
     const faceMatcher = await this.faceApiService.registerFaces(this.detections, Object.values(this.names))
 

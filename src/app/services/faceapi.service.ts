@@ -50,4 +50,21 @@ export class FaceapiService {
     const match = await faceMatcher.findBestMatch(result!.descriptor)
     return match
   }
+
+  public async findMatchesAndShowResult(faceMatcher: any, canvas: any, image: any, imageOriginal: any, detections: any) {
+    faceapi.matchDimensions(canvas, imageOriginal);
+    
+    const resizedDetections = await faceapi.resizeResults(detections, {
+      width: image.width,
+      height: image.height
+    });
+    
+    resizedDetections.map((detection: any) => {
+      const match = faceMatcher.findBestMatch(detection.descriptor);
+      const textField = new faceapi.draw.DrawTextField([match.label], detection.detection.box.bottomLeft);
+      textField.draw(canvas);
+    });
+    
+    faceapi.draw.drawDetections(canvas, resizedDetections);
+  }
 }

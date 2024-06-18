@@ -27,26 +27,20 @@ export class FaceRecognitionPage implements OnInit {
 
   async handleUpload() {
     const file = await this.photoService.uploadFile();
-    const match = await this.faceApiService.findBestMatch(file, this.faceMatcher)
-    let message: string;
-    if (match.label === 'unknown') {
-      message = 'Pessoa da foto não foi identificada'
-      } else {
-      message = `Pessoa identificada na foto: ${match.toString()}`
-    }
-    const alert = await this.alertCtrl.create({
-      header: 'Resultado',
-      message: message,
-      buttons: [
-        {
-          text: 'Ok',
-          role: 'cancel',
-          
-        }
-      ]
-    });
-    alert.present();
+    
+    const imageOriginal = document.getElementById('inputImageOriginal') as HTMLImageElement;
+    const image = document.getElementById('inputImage') as HTMLImageElement;
+    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    
+    image.src = file.src;
+    imageOriginal.src = file.src;
+    
+    canvas.width = imageOriginal.width;
+    canvas.height = imageOriginal.height;
+    
+    const detections = this.faceApiService.detectFaces(file);
 
+    await this.faceApiService.findMatchesAndShowResult(this.faceMatcher, canvas, image, imageOriginal, detections);
   }
 
   reset() {

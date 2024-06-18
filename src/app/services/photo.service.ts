@@ -43,7 +43,11 @@ export class PhotoService {
         const img = new Image();
         img.src = capturedPhoto.webPath!;
 
-        return img;
+        return new Promise<HTMLImageElement>((resolve) => {
+            img.onload = () => {
+                resolve(img);
+            };
+        });
     }
     
     public async addNewToGallery() {

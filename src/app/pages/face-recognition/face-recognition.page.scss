@@ -1,0 +1,17 @@
+img {
+    max-width: none;
+}
+
+#canvas {
+    position: absolute;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+}
+.container #inputImage, .container canvas {
+    width: 100%;
+    height: auto;
+}
