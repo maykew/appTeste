@@ -51,6 +51,28 @@ export class FaceapiService {
     return match
   }
 
+  private drawLabelAndBox(label: any, color: any, detection: any, fontSize: any, lineWidth: any, canvas: any) {
+    const textField = new faceapi.draw.DrawTextField(
+      [label], 
+      detection.detection.box.bottomLeft,
+      {
+        fontSize: fontSize,
+        fontColor: color,
+        backgroundColor: 'transparent'
+      }
+    );
+    textField.draw(canvas);
+  
+    const box = new faceapi.draw.DrawBox(
+      detection.detection.box, 
+      {
+        boxColor: color,
+        lineWidth: lineWidth,
+      }
+    );
+    box.draw(canvas);
+  }
+
   public async findMatchesAndShowResult(faceMatcher: any, canvas: any, image: any, imageOriginal: any, detections: any) {
     faceapi.matchDimensions(canvas, imageOriginal);
     
@@ -58,13 +80,32 @@ export class FaceapiService {
       width: image.width,
       height: image.height
     });
+
+    const UNKNOWN = 'unknown';
+    const UNKNOWN_LABEL = '?';
+    const BOX_SIZE = 40000;
+    const FONT_SIZE = 48;
+    const LINE_WIDTH = 8;
+    const FACE_COLOR_RECOGNIZED = 'yellow';
+    const UNKNOWN_FACE_COLOR = 'red';
     
     resizedDetections.map((detection: any) => {
       const match = faceMatcher.findBestMatch(detection.descriptor);
-      const textField = new faceapi.draw.DrawTextField([match.label], detection.detection.box.bottomLeft);
-      textField.draw(canvas);
+
+      const boxWidth = detection.detection.box.width;
+      const boxHeight = detection.detection.box.height;
+
+      const scale = Math.sqrt((boxWidth * boxHeight) / (BOX_SIZE));
+
+      const fontSize = FONT_SIZE * scale;
+      const lineWidth = LINE_WIDTH * scale;
+
+      const isUnknown = (match.label === UNKNOWN);
+      const label = isUnknown ? UNKNOWN_LABEL : match.label;
+      const color = isUnknown ? UNKNOWN_FACE_COLOR : FACE_COLOR_RECOGNIZED;
+
+      this.drawLabelAndBox(label, color, detection, fontSize, lineWidth, canvas);
+
     });
-    
-    faceapi.draw.drawDetections(canvas, resizedDetections);
   }
 }
