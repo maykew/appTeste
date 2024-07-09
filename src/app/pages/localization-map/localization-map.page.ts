@@ -1,11 +1,10 @@
 
-
-
 import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import { Geolocation } from '@capacitor/geolocation';
 import * as $ from 'jquery';
 import { Router } from '@angular/router';
+import { LatLngExpression, LatLngTuple, LatLng } from 'leaflet';
 
 @Component({
   selector: 'app-localization-map',
@@ -15,13 +14,17 @@ import { Router } from '@angular/router';
 export class LocalizationMapPage implements OnInit {
   map: L.Map | undefined;
   userMarker: L.Marker | undefined;
-  workareaMarker:  L.Marker | undefined;
-  workareaCircle: L.Circle | undefined;
   updateInterval: any;
-  workareaSize: number = 200; //em metros
-  
+  workareapolygon: L.Polygon | undefined;
 
-  constructor(private router: Router) {}
+  workareapolygonPoints: LatLngExpression[] = [
+    L.latLng(-20.1951324, -40.217244),
+    L.latLng(-20.2001324, -40.215244),
+    L.latLng(-20.2011324, -40.219244),
+    // informação vinda do banco de dados
+  ];
+
+  constructor(private router: Router,) {}
 
   ngOnInit() {
     this.loadMap();
@@ -66,7 +69,7 @@ export class LocalizationMapPage implements OnInit {
     const latitude = userLocation.latitude;
     const longitude = userLocation.longitude;
 
-    this.map = L.map('map').setView([latitude, longitude], 13);
+    this.map = L.map('map').setView([latitude, longitude], 17);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -77,16 +80,16 @@ export class LocalizationMapPage implements OnInit {
       .bindPopup('Você está aqui!')
       .openPopup();
 
-    //adicionando o workarea marker e seu círculo de área.
-    this.workareaMarker = L.marker([latitude+0.001, longitude+0.001]).addTo(this.map)
-    .bindPopup('Esse é seu local de trabalho.')
-    .openPopup();
-    this.workareaCircle = L.circle([latitude + 0.001, longitude + 0.001], {
-      color: 'blue',
-      fillColor: 'blue',
-      fillOpacity: 0.2,
-      radius: this.workareaSize // em metros
+
+    
+    // Crie o polígono com os pontos definidos
+    this.workareapolygon = L.polygon(this.workareapolygonPoints, {
+      color: 'blue',        // Cor da linha do polígono
+      fillColor: 'blue',    // Cor de preenchimento do polígono
+      fillOpacity: 0.2      // Opacidade de preenchimento do polígono (0 a 1)
     }).addTo(this.map);
+
+
     this.displayBaterPontoButton();
   }
 
@@ -113,21 +116,9 @@ export class LocalizationMapPage implements OnInit {
   }
 
   isMarkerInWorkArea() {
-    if (this.userMarker && this.workareaCircle) {
-      const markerLatLng = this.userMarker.getLatLng();
-      const workareaMakerLatLng = this.workareaCircle.getLatLng();
-  
-      // Calcula a distância entre o marcador e o centro do círculo da área de trabalho
-      const distance = markerLatLng.distanceTo(workareaMakerLatLng);
-  
-      // Verifica se a distância é menor ou igual ao raio do círculo (200 metros)
-      if (distance <= this.workareaCircle.getRadius()) {
-        return true; // O marcador está dentro da área de trabalho
-      } else {
-        return false; // O marcador está fora da área de trabalho
-      }
-    }
-    return false; // Caso algum dos marcadores ou do círculo não esteja definido
+    //consulta a API passando a matriz de pontos do polígono e as coordenadas do usuário
+    //argumentos:   this.workareapolygonPoints, this.getUserLocation
+    return true;
   }
 
   async onClickBaterPonto() {
