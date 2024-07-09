@@ -13,6 +13,10 @@ const routes: Routes = [
   {
     path: 'face-recognition',
     loadChildren: () => import('./pages/face-recognition/face-recognition.module').then( m => m.FaceRecognitionPageModule)
+  },
+  {
+    path: 'localization-map',
+    loadChildren: () => import('./pages/localization-map/localization-map.module').then( m => m.LocalizationMapPageModule)
   }
 ];
 @NgModule({

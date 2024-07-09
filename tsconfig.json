@@ -23,7 +23,8 @@
       "dom"
     ],
     "useDefineForClassFields": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["jquery"] 
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

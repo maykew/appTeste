@@ -1,7 +1,8 @@
 {
   "name": "appTeste",
   "integrations": {
-    "capacitor": {}
+    "capacitor": {},
+    "cordova": {}
   },
   "type": "angular"
 }
