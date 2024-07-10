@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { LocalizationMapPage } from './localization-map.page';
+import { RegisterWorkareaPage } from './register-workarea.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: LocalizationMapPage
+    component: RegisterWorkareaPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class LocalizationMapPageRoutingModule {}
+export class RegisterWorkareaPageRoutingModule {}

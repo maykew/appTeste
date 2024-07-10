@@ -19,7 +19,9 @@ export class HomePage implements OnInit {
     private faceApiService: FaceapiService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    
+  }
 
   async handleUpload() {
     const loading = await this.loadingCtrl.create({

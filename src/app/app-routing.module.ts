@@ -3,8 +3,9 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: '',
-    loadChildren: () => import('./pages/home/home.module').then( m => m.HomePageModule)
+    //path:'',
+    path: 'register-face',
+    loadChildren: () => import('./pages/register-face/home.module').then( m => m.HomePageModule)
   },
   {
     path: 'identify-faces',
@@ -15,8 +16,9 @@ const routes: Routes = [
     loadChildren: () => import('./pages/face-recognition/face-recognition.module').then( m => m.FaceRecognitionPageModule)
   },
   {
-    path: 'localization-map',
-    loadChildren: () => import('./pages/localization-map/localization-map.module').then( m => m.LocalizationMapPageModule)
+    //path: 'register-workarea',
+    path:'',
+    loadChildren: () => import('./pages/register-workarea/register-workarea.module').then( m => m.RegisterWorkareaPageModule)
   }
 ];
 @NgModule({

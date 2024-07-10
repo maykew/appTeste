@@ -23,6 +23,7 @@ export class FaceRecognitionPage implements OnInit {
 
   ngOnInit() {
     this.faceMatcher = this.navParams.get('faceMatcher');
+    
   }
 
   async handleUpload() {
