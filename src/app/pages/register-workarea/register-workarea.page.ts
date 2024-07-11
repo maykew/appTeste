@@ -17,6 +17,7 @@ import { NavParamsService } from 'src/app/services/nav-params.service';
 export class RegisterWorkareaPage implements OnInit, OnDestroy {
   map: L.Map | undefined;
   userMarker: L.Marker | undefined;
+  iconDefault: L.Icon<L.IconOptions> | undefined;
   updateInterval: any;
   workareapolygon: L.Polygon | undefined;
   workareaname: String | undefined; // valor do input de nome da zona de trabalho
@@ -30,7 +31,9 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     private navParams: NavParamsService,
     public navCtrl: NavController) {}
 
+
   ngOnInit() {
+    this.configureMarkerIconOptions();
     this.loadMap();
     this.startUpdatingUserLocation();
     this.presentAlertInstrucoes();
@@ -44,7 +47,19 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     }
   }
 
-
+  configureMarkerIconOptions(){
+    this.iconDefault = L.icon({
+      iconRetinaUrl: 'assets/marker_images/marker-icon-2x.png',
+      iconUrl: 'assets/marker_images/marker-icon.png',
+      shadowUrl: 'assets/marker_images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+    L.Marker.prototype.options.icon = this.iconDefault;
+  }
 
 
   async loadMap() {
@@ -158,7 +173,8 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
   async presentAlertInstrucoes() {
     const alert = await this.alertController.create({
       header: 'Instrução',
-      message: 'Clique na tela para definir os limites da Zona de trabalho e Insira o nome da localidade.',
+      //message: 'Clique na tela para definir os limites da Zona de trabalho e Insira o nome da localidade.',
+      message: 'Selecione uma área de trabalho. Se você estiver fora dela, ela será cadastrada como nova zona; se estiver dentro, você poderá bater o ponto.',
       buttons: ['OK'],
     });
 
