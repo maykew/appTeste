@@ -10,10 +10,14 @@ export class FaceapiService {
 
   async loadModels() {
     const MODEL_URL = '/assets/models';
-    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-    console.log('Modelos carregados com sucesso!');
+    try{
+      await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+      console.log('Modelos carregados com sucesso!');
+    }catch(error:any){
+      console.error('Erro ao carregar modelos:', error.message);
+    }
   }
   
   public async detectFaces(image: any) {
