@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "vepema-tjes-demo",
     "public": "www",
     "ignore": [
       "firebase.json",
