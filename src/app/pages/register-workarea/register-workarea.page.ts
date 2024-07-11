@@ -4,7 +4,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import * as $ from 'jquery';
 import { Router } from '@angular/router';
 import { LatLngExpression } from 'leaflet';
-import { AlertController } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 
 import { LoadingController, NavController } from '@ionic/angular';
 import { NavParamsService } from 'src/app/services/nav-params.service';
@@ -25,11 +25,22 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
   workareapolygonPoints: LatLngExpression[] = [
   ];
 
+  
 
 
-  constructor(private router: Router, private alertController: AlertController,
+
+  constructor(
+    private router: Router, 
+    private alertController: AlertController,
     private navParams: NavParamsService,
-    public navCtrl: NavController) {}
+    public navCtrl: NavController,
+    private platform:Platform) 
+    
+    {
+      if(this.platform.is('android')){
+        const permissionStatus = Geolocation.requestPermissions();
+      }
+    }
 
 
   ngOnInit() {
@@ -47,6 +58,11 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     }
   }
 
+  
+
+
+
+  
   configureMarkerIconOptions(){
     this.iconDefault = L.icon({
       iconRetinaUrl: 'assets/marker_images/marker-icon-2x.png',
@@ -123,7 +139,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error getting location', error);
       // Retorne uma posição padrão em caso de erro
-      return { latitude: 43.0741904, longitude: -89.3809802 };
+      return { latitude: 0, longitude: 0 };
     }
   }
 
