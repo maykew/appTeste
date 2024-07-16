@@ -13,13 +13,15 @@ export class AppComponent implements OnInit {
 
   async ngOnInit() {
     const firebaseConfig = {
-      apiKey: "AIzaSyDLUP7YYdCHW7Nm14y3I1_TStnPMUXEAik",
-      authDomain: "vepema-demo-leds-897bc.firebaseapp.com",
-      projectId: "vepema-demo-leds",
-      storageBucket: "vepema-demo-leds.appspot.com",
-      messagingSenderId: "946008911110",
-      appId: "1:946008911110:web:50df7ae70920452f97c287"
+      apiKey: "AIzaSyCl-oxOb7mh9hpCFhm7pqfVLdKfyvCydDk",
+      authDomain: "vepema-demo.firebaseapp.com",
+      projectId: "vepema-demo",
+      storageBucket: "vepema-demo.appspot.com",
+      messagingSenderId: "174946596566",
+      appId: "1:174946596566:web:9b47af8d88de2782d1bb77",
+      measurementId: "G-RJQ6534TQG"
     };
+    
     const app = initializeApp(firebaseConfig);
     
     await this.faceApiService.loadModels();

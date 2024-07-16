@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "vepema-tjes-demo",
+    "site": "vepema-demo-leds",
     "public": "www",
     "ignore": [
       "firebase.json",
