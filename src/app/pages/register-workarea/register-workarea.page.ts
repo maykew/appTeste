@@ -130,9 +130,28 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     }, 5000); // Atualiza a cada 5 segundos
   }
 
+  //modificação no GetCurrentPosition para suportar Alta Precisão.
+  getCurrentPosition(): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            resolve(position);
+          },
+          (error) => {
+            reject(error);
+          },
+          { enableHighAccuracy: true } // Solicita a localização exata
+        );
+      } else {
+        reject(new Error('Geolocation is not supported by this browser.'));
+      }
+    });
+  }
+
   async getUserLocation() {
     try {
-      const position = await Geolocation.getCurrentPosition();
+      const position = await this.getCurrentPosition();
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
       return { latitude, longitude };
