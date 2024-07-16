@@ -48,6 +48,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     this.loadMap();
     this.startUpdatingUserLocation();
     this.presentAlertInstrucoes();
+    this.displayBaterPontoButton();
   }
 
   ngOnDestroy() {
@@ -186,23 +187,26 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     this.displayBaterPontoButton(newLatitude,newLongitude);
   }
 
-  displayBaterPontoButton(newLatitude:number,newLongitude:number) {
-    // só mostra se o usuário selecionar pelomenos 3 pontos.
-    if(this.workareapolygonPoints.length >= 3 ){
+  displayBaterPontoButton(newLatitude?:number,newLongitude?:number) {
       
+      console.log("bom dia");
       if (this.isMarkerInWorkArea(newLatitude, newLongitude)) {
+        //mostra o botao de bater ponto
         $('#map').css('height', '80%');
         $("#input_nome_workarea").css('display', 'none');
         $('#botao_bater_ponto').css("display","block");
         $("#botao_cadastrar_workzone").css("display","none");
       } else {
+        //mostra o input de nome e o botao de cadastrar localidade
+        if(this.workareapolygonPoints.length >= 3 ){
         $('#map').css('height', '70%');
         $("#input_nome_workarea").css('display', 'block');
         $('#botao_bater_ponto').css("display","none");
         $("#botao_cadastrar_workzone").css("display","block");
+        }
       }
 
-    }
+
   }
 
   async presentAlertInstrucoes() {
