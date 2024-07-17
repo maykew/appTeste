@@ -42,3 +42,32 @@ O cadastro é meramente simbólico, pois isso seria feito via API, mas uma vez q
 Verificação de Presença do usuário na Zona de Trabalho:  Uma vez selecionada uma zona de trabalho onde o usuário está presente, abre-se um botão para que ele "Bata o Ponto".
 
 Bater Ponto:  Confirmada sua presença na área, uma vez esse botão clicado, o usuário será redirecionado para uma tela onde ele deve fazer envio de uma foto para reconhecimento facial e confirmar se é de fato essa pessoa batendo o ponto.  
+
+
+## Páginas
+Página inicial (Register Workarea)
+```
+Caminho do Componente de página: src/app/pages/register-workarea  
+```
+![register-workarea](src/assets/prints/register-workarea.png)
+
+
+Página de Cadastro de Faces (Register Face)  
+```
+Caminho do Componente de página: src/app/pages/register-face  
+```
+![register-face](src/assets/prints/register-face.png)
+
+
+Página de Cadastro de Faces (Identificar Faces)  
+```
+Caminho do Componente de página: src/app/pages/identify-faces
+```
+![identify-faces](src/assets/prints/identify-faces.png)
+
+
+Página de Reconhecimento Facial (Reconhecimento Facial)  
+```
+Caminho do Componente de página: src/app/pages/face-recognition
+```
+![face-recognition](src/assets/prints/face-recognition.png)
