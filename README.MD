@@ -30,6 +30,6 @@ passo a passo para o deploy no Firebase:
     Atualizar o .firebaserc com o nome do projeto do firebase  
     Atualizar o app.component.ts com a configuração do Firebase  
     rode o comando npm run build para transpilar seu código para .js a fim de tornar ele deployavel  
-    rode o comando firebase login para se certificar que está logado na conta que tem acesso ao projeto especificado em .firebaerc  
+    rode o comando firebase login para se certificar que está logado na conta que tem acesso ao projeto especificado em .firebaserc  
     verifique se é necessário usar o firebase init. mas provavelmente não será necessário.  
     rode o comando firebase deploy para enviar a sua versão buildada para o projeto que irá implantar ela no site especificado.  
