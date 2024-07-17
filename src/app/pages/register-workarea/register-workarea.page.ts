@@ -189,7 +189,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
   displayBaterPontoButton(newLatitude?:number,newLongitude?:number) {
       
-      console.log("bom dia");
+      
       if (this.isMarkerInWorkArea(newLatitude, newLongitude)) {
         //mostra o botao de bater ponto
         $('#map').css('height', '80%');
@@ -204,6 +204,10 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
         $('#botao_bater_ponto').css("display","none");
         $("#botao_cadastrar_workzone").css("display","block");
         }
+      }
+      if (this.workareapolygonPoints.length<3){
+        $('#botao_bater_ponto').css("display","none");
+        $("#botao_cadastrar_workzone").css("display","none");
       }
 
 
