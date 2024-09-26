@@ -7,7 +7,12 @@ import { LatLngExpression } from 'leaflet';
 import { AlertController, Platform } from '@ionic/angular';
 
 import { LoadingController, NavController } from '@ionic/angular';
+
 import { NavParamsService } from 'src/app/services/nav-params.service';
+import { NotificationService } from 'src/app/services/notification.service';
+
+import { LocalNotifications } from '@capacitor/local-notifications';
+
 
 @Component({
   selector: 'app-register-workarea',
@@ -24,6 +29,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
   workareapolygonPoints: LatLngExpression[] = [
   ];
+  userLocation= {latitude:0,longitude:0};
 
   
 
@@ -34,6 +40,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     private alertController: AlertController,
     private navParams: NavParamsService,
     public navCtrl: NavController,
+    public notificationService: NotificationService,
     private platform:Platform) 
     
     {
@@ -80,9 +87,9 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
 
   async loadMap() {
-    const userLocation = await this.getUserLocation();
-    const latitude = userLocation.latitude;
-    const longitude = userLocation.longitude;
+    this.userLocation = await this.getUserLocation();
+    const latitude = this.userLocation.latitude;
+    const longitude = this.userLocation.longitude;
 
     this.map = L.map('map').setView([latitude, longitude], 17);
     // Adicione o evento de clique no mapa
@@ -113,15 +120,13 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
 
   async updateUserLocation() {
-    const userLocation = await this.getUserLocation();
-    const latitude = userLocation.latitude;
-    const longitude = userLocation.longitude;
-    this.moveUserMarker(latitude, longitude);
+    this.userLocation = await this.getUserLocation();
+    this.moveUserMarker(this.userLocation.latitude, this.userLocation.longitude);
     console.log(
       'Localização do usuário: \nLatitude:' +
-        latitude +
+        this.userLocation.latitude +
         '\nLongitude:' +
-        longitude
+        this.userLocation.longitude
     );
   }
 
@@ -142,7 +147,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
           (error) => {
             reject(error);
           },
-          { enableHighAccuracy: true } // Solicita a localização exata
+          { enableHighAccuracy: true ,} // Solicita a localização exata
         );
       } else {
         reject(new Error('Geolocation is not supported by this browser.'));
@@ -189,7 +194,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
   displayBaterPontoButton(newLatitude?:number,newLongitude?:number) {
       
-      
+      /*
       if (this.isMarkerInWorkArea(newLatitude, newLongitude)) {
         //mostra o botao de bater ponto
         $('#map').css('height', '80%');
@@ -205,9 +210,16 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
         $("#botao_cadastrar_workzone").css("display","block");
         }
       }
+      */
+      $("#input_nome_workarea").css('display', 'none');
+
       if (this.workareapolygonPoints.length<3){
         $('#botao_bater_ponto').css("display","none");
         $("#botao_cadastrar_workzone").css("display","none");
+        $('#map').css('height', '100%');
+      }else{
+        $('#botao_bater_ponto').css("display","block");
+        $('#map').css('height', '80%');
       }
 
 
@@ -231,8 +243,8 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
       return false;
     }
 
-    const userLocation = { latitude, longitude };
-    return this.isPointInPolygon(userLocation, this.workareapolygonPoints);
+    this.userLocation = { latitude, longitude };
+    return this.isPointInPolygon(this.userLocation, this.workareapolygonPoints);
   }
 
   isPointInPolygon(userLocation: { latitude: number, longitude: number }, polygon: LatLngExpression[]): boolean {
@@ -258,37 +270,107 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
 
 
-  async onClickBaterPonto() {
-    /*
-    if(this.workareaname!="" && this.workareaname!=undefined && this.workareapolygonPoints.length>=3){
-      const workareaname = this.workareaname;
-      const workareapolygonPoints = this.workareapolygonPoints;
-      console.log('Área cadastrada');
-      console.log('Enviando dados:', workareaname, workareapolygonPoints);
-      this.navParams.setParams({ workareaname, workareapolygonPoints });
-      this.ngOnDestroy();
-      this.navCtrl.navigateForward('/localization-map');
-      
-    }else{
-      this.presentAlertInstrucoes();
-    }
-    */
+  async requestPermissions() {
+    const permission = await LocalNotifications.requestPermissions();
+    return permission;
+}
 
+async onClickBaterPonto() {
+    //para permitir que o usuário prossiga com o registro de ponto:
+    /*
     const alert = await this.alertController.create({
-      header: 'Parabéns',
-      message: 'Você acaba de bater o ponto!',
-      buttons: ['OK'],
+        header: 'Parabéns',
+        message: 'Você acaba de bater o ponto!',
+        buttons: ['OK'],
     });
     await alert.present();
     this.navCtrl.navigateForward('/register-face');
-  }
+    */
+
+    //notificações para navegador
+    /*
+    if (Notification.permission === 'granted') {
+        // Cria e exibe a notificação
+        new Notification('Dentro da área!', {
+            body: 'Você acaba de bater o ponto!',
+        });
+    } else if (Notification.permission !== 'denied') {
+        console.log("Sem Permissão");
+        // Se não tiver permissão, solicita
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            new Notification('Parabéns!', {
+                body: 'Você acaba de bater o ponto!',
+            });
+        }
+    }
+    */
+    
+    const permission = await this.requestPermissions();
+    console.log(permission.display);
+    
+    if (permission.display === 'granted') {
+        // Coletando dados para criação da Notificação
+        const latitude = this.userLocation.latitude;
+        const longitude = this.userLocation.longitude;
+        const isInside = this.isPointInPolygon({ latitude, longitude }, this.workareapolygonPoints);
+
+        this.sendNotification(isInside,latitude,longitude);
+    } else {
+        console.log('Permissão para notificações negada.');
+        // Aqui você pode exibir um alerta ou mensagem informando o usuário
+        const alert = await this.alertController.create({
+            header: 'Permissão Negada',
+            message: 'Você precisa permitir notificações para usar esta funcionalidade.',
+            buttons: ['OK'],
+        });
+        await alert.present();
+    }
+}
+
+
+
+
+
+async sendNotification(isInside: boolean, latitude: number, longitude: number) {
+  const locationMessage = `Localização: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+  const statusMessage = isInside ? 'Você está dentro da área!' : 'Você está fora da área!';
+
+  // Formata a mensagem da notificação
+  const notificationMessage = `${statusMessage} ${locationMessage}\n`; // Adiciona uma quebra de linha no final
+
+  // Adiciona a notificação ao histórico no serviço
+  this.notificationService.addNotification(notificationMessage);
+
+  await LocalNotifications.schedule({
+      notifications: [
+          {
+              title: "Registro de Ponto",
+              body: notificationMessage,
+              id: 1,
+              schedule: { at: new Date(Date.now() + 1000 * 5) }, // programada para 5 segundos no futuro
+              actionTypeId: "",
+              extra: null,
+          },
+      ],
+  });
+}
+
+
+
+
+
+
+
+
+
 
   async onClickCadastrarWorkzone(){
 
     if(this.workareaname){
       const alert = await this.alertController.create({
         header: 'Parabéns',
-        message: 'Você acaba de cadastrar uma Zona de trabalho!',
+        message: 'Você acaba de cadastrar uma Zona de trabalho! ',
         buttons: ['OK'],
       });
       await alert.present();

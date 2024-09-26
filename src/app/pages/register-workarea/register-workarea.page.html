@@ -7,14 +7,8 @@
 
   <ion-content>
     <ion-list>
-      <ion-item>
-        <ion-label>Ponto do dia xx/xx/xxxx </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-label>Ponto do dia xx/xx/xxxx </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-label>Ponto do dia xx/xx/xxxx </ion-label>
+      <ion-item *ngFor="let log of notificationService.getNotifications()">
+        <ion-label>{{ log }}</ion-label>
       </ion-item>
     </ion-list>
   </ion-content>
@@ -40,3 +34,4 @@
   </ion-button>
 
 </ion-content>
+

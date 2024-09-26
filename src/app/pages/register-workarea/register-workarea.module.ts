@@ -6,6 +6,8 @@ import { IonicModule } from '@ionic/angular';
 
 import { RegisterWorkareaPageRoutingModule } from './register-workarea-routing.module';
 
+import { NotificationService } from 'src/app/services/notification.service';
+
 import { RegisterWorkareaPage } from './register-workarea.page';
 
 @NgModule({
