@@ -40,8 +40,9 @@ passo a passo para o deploy no Firebase:
 ## Como compilar para Android
 
 Faça o Build com ng build
-copie para o Android Studio com npx cap copy.  
-configure seu android studio caso não tenha configurado. 
+copie para o Android Studio com npx cap copy.
+abra o android studio com npx cap open android
+configure seu android studio caso não tenha configurado.
 
 ## Funcionalidades implementadas
 
