@@ -78,7 +78,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
   async onEnterWorkArea() {
     const permission = await this.notificationService.requestPermissions();
-    if  (permission === 'granted') {
+    if  (permission.display === 'granted') {
       console.log("Granted");
       this.notificationService.sendNotification(true, this.userLocation.latitude, this.userLocation.longitude, 'Você entrou na área de trabalho. Ponto registrado automaticamente.');
     } else {
@@ -88,7 +88,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
   async onExitWorkArea() {
     const permission = await this.notificationService.requestPermissions();
-    if (permission === 'granted') {
+    if (permission.display === 'granted') {
       console.log("Granted");
       this.notificationService.sendNotification(false, this.userLocation.latitude, this.userLocation.longitude, 'Você saiu da área de trabalho.');
     } else {
@@ -148,7 +148,8 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
   async onClickBaterPonto() {
     const permission = await this.notificationService.requestPermissions();
-    if (permission === 'granted') {
+    
+    if (permission.display === 'granted') {
       console.log("Granted");
       const isInside = this.isMarkerInWorkArea(this.userLocation.latitude, this.userLocation.longitude);
       this.notificationService.sendNotification(isInside, this.userLocation.latitude, this.userLocation.longitude,"Ponto Batido ");
