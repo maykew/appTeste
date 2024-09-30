@@ -80,7 +80,19 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     const permission = await this.notificationService.requestPermissions();
     if  (permission.display === 'granted') {
       console.log("Granted");
-      this.notificationService.sendNotification(true, this.userLocation.latitude, this.userLocation.longitude, 'Você entrou na área de trabalho. Ponto registrado automaticamente.');
+
+      const timestamp = new Date();
+      const hours = timestamp.getHours().toString().padStart(2, '0');
+      const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+      const formattedTime = `${hours}:${minutes}`;
+
+      this.notificationService.sendNotification(
+        true,
+        this.userLocation.latitude,
+        this.userLocation.longitude,
+        'Você entrou na área de trabalho. Ponto registrado automaticamente. \nHorário:' + formattedTime
+      );
+
     } else {
       this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
     }
@@ -90,7 +102,13 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     const permission = await this.notificationService.requestPermissions();
     if (permission.display === 'granted') {
       console.log("Granted");
-      this.notificationService.sendNotification(false, this.userLocation.latitude, this.userLocation.longitude, 'Você saiu da área de trabalho.');
+
+      const timestamp = new Date();
+      const hours = timestamp.getHours().toString().padStart(2, '0');
+      const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+      const formattedTime = `${hours}:${minutes}`;
+
+      this.notificationService.sendNotification(false, this.userLocation.latitude, this.userLocation.longitude, 'Você saiu da área de trabalho. Horário:'+formattedTime);
     } else {
       this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
     }
@@ -152,7 +170,13 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     if (permission.display === 'granted') {
       console.log("Granted");
       const isInside = this.isMarkerInWorkArea(this.userLocation.latitude, this.userLocation.longitude);
-      this.notificationService.sendNotification(isInside, this.userLocation.latitude, this.userLocation.longitude,"Ponto Batido ");
+      
+      const timestamp = new Date();
+      const hours = timestamp.getHours().toString().padStart(2, '0');
+      const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+      const formattedTime = `${hours}:${minutes}`;
+      
+      this.notificationService.sendNotification(isInside, this.userLocation.latitude, this.userLocation.longitude,"Ponto Batido  Horário:"+formattedTime);
     } else {
       this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
     }
