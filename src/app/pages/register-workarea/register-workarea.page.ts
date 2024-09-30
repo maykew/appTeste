@@ -45,6 +45,10 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
 
   async ngOnInit() {
+    setInterval(async () => {
+      await this.checkIfInsideWorkarea(this.userLocation.latitude, this.userLocation.longitude);
+    }, 3000); // 3000 milissegundos = 3 segundos
+
     configureMarkerIconOptions();
     this.userLocation = await this.geolocationService.getUserLocation();
     this.mapService.initMap(this.userLocation.latitude, this.userLocation.longitude, this.workareapolygonPoints);
@@ -101,18 +105,33 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     }
   }
 
-  checkIfInsideWorkarea(latitude: number, longitude: number) {
+  async checkIfInsideWorkarea(latitude: number, longitude: number) {
+
+    console.log("Checando se está dentro do polígono");
     const currentlyInside = this.isMarkerInWorkArea(latitude, longitude);
+    const permission = await this.notificationService.requestPermissions();
 
     if (currentlyInside && !this.isInsideWorkarea) {
+      console.log("Entrou na Zona de Trabalho!");
       // O usuário entrou na área de trabalho
       this.isInsideWorkarea = true;
-      this.notificationService.sendNotification( latitude, longitude, 'Você entrou na área de trabalho.');
+      if (permission.display === 'granted') {
+        const isInside = this.isMarkerInWorkArea(this.userLocation.latitude, this.userLocation.longitude);
+        this.notificationService.sendNotification( latitude, longitude, 'Você entrou na área de trabalho.');
+      } else {
+        this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
+      }
+
     } else if (!currentlyInside && this.isInsideWorkarea) {
+      console.log("Saiu na Zona de Trabalho!");
       // O usuário saiu da área de trabalho
       this.isInsideWorkarea = false;
       this.notificationService.sendNotification( latitude, longitude, 'Você saiu da área de trabalho.');
     }
+
+
+    
+
   }
 
   isMarkerInWorkArea(latitude?: number, longitude?: number): boolean {

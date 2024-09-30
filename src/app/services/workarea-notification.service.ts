@@ -28,7 +28,7 @@ export class WorkareaNotificationService {
           title: 'Registro de Ponto',
           body: notificationMessage,
           id: 1,
-          schedule: { at: new Date(Date.now() + 1000 * 5) }, // 5 seconds delay
+          schedule: { at: new Date(Date.now() + 1000 * 1) }, // 1 seconds delay
         },
       ],
     });
