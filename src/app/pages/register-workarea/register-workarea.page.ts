@@ -22,6 +22,7 @@ import { configureMarkerIconOptions } from 'src/app/utils/marker-config';
   styleUrls: ['./register-workarea.page.scss'],
 })
 export class RegisterWorkareaPage implements OnInit, OnDestroy {
+  private isInsideWorkarea: boolean = false;
   userLocation = { latitude: 0, longitude: 0 };
   workareapolygonPoints: L.LatLngExpression[] = [];
   workareapolygon: L.Polygon | undefined;
@@ -65,7 +66,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     const permission = await this.notificationService.requestPermissions();
     if (permission.display === 'granted') {
       const isInside = this.isMarkerInWorkArea(this.userLocation.latitude, this.userLocation.longitude);
-      this.notificationService.sendNotification(isInside, this.userLocation.latitude, this.userLocation.longitude);
+      this.notificationService.sendNotification( this.userLocation.latitude, this.userLocation.longitude, "Você bateu o ponto");
     } else {
       this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
     }
@@ -84,6 +85,9 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
           longitude: position.coords.longitude,
         };
         this.mapService.moveUserMarker(this.userLocation.latitude, this.userLocation.longitude);
+
+        // Verificar se o usuário está dentro da workarea
+        this.checkIfInsideWorkarea(this.userLocation.latitude, this.userLocation.longitude);
       }
       if (err) {
         console.error('Erro ao acompanhar a posição: ', err);
@@ -97,7 +101,20 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     }
   }
 
-  
+  checkIfInsideWorkarea(latitude: number, longitude: number) {
+    const currentlyInside = this.isMarkerInWorkArea(latitude, longitude);
+
+    if (currentlyInside && !this.isInsideWorkarea) {
+      // O usuário entrou na área de trabalho
+      this.isInsideWorkarea = true;
+      this.notificationService.sendNotification( latitude, longitude, 'Você entrou na área de trabalho.');
+    } else if (!currentlyInside && this.isInsideWorkarea) {
+      // O usuário saiu da área de trabalho
+      this.isInsideWorkarea = false;
+      this.notificationService.sendNotification( latitude, longitude, 'Você saiu da área de trabalho.');
+    }
+  }
+
   isMarkerInWorkArea(latitude?: number, longitude?: number): boolean {
     if (!latitude || !longitude) {
       return false;
@@ -125,8 +142,6 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     return inside;
   }
 
-
-
   onMapClick(e: L.LeafletMouseEvent) {
     const latlng = e.latlng; // Obter coordenadas do clique
     this.workareapolygonPoints.push([latlng.lat, latlng.lng]); // Adicionar ao array de pontos do polígono
@@ -151,5 +166,4 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
       }).addTo(map);  // Agora o 'map' é seguro para uso
     }
   }
-
 }

@@ -14,10 +14,10 @@ export class WorkareaNotificationService {
     return await LocalNotifications.requestPermissions();
   }
 
-  async sendNotification(isInside: boolean, latitude: number, longitude: number) {
-    const notificationMessage = isInside
-      ? `Você está dentro da área! Localização: ${latitude}, ${longitude}`
-      : `Você está fora da área! Localização: ${latitude}, ${longitude}`;
+  async sendNotification( latitude: number, longitude: number, text:string) {
+    const notificationMessage = text
+      ? `${text}: ${latitude}, ${longitude}`
+      : `${text}: ${latitude}, ${longitude}`;
 
     // Armazena a mensagem no log
     this.notificationsLog.push(notificationMessage);
