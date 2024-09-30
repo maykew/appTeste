@@ -14,10 +14,10 @@ export class WorkareaNotificationService {
     return await LocalNotifications.requestPermissions();
   }
 
-  async sendNotification( latitude: number, longitude: number, text:string) {
-    const notificationMessage = text
-      ? `${text}: ${latitude}, ${longitude}`
-      : `${text}: ${latitude}, ${longitude}`;
+  async sendNotification(isInside: boolean, latitude: number, longitude: number,text:string) {
+    const notificationMessage = isInside
+      ? ` ${text} Localização: ${latitude}, ${longitude}`
+      : `${text} Localização: ${latitude}, ${longitude}`;
 
     // Armazena a mensagem no log
     this.notificationsLog.push(notificationMessage);
@@ -28,7 +28,7 @@ export class WorkareaNotificationService {
           title: 'Registro de Ponto',
           body: notificationMessage,
           id: 1,
-          schedule: { at: new Date(Date.now() + 1000 * 1) }, // 1 seconds delay
+          schedule: { at: new Date(Date.now() + 1000 * 5) }, // 5 seconds delay
         },
       ],
     });

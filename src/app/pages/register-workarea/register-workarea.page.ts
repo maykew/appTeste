@@ -1,15 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
 import { Geolocation } from '@capacitor/geolocation';
-import * as $ from 'jquery';
 import { Router } from '@angular/router';
 import { LatLngExpression } from 'leaflet';
-import { AlertController, Platform } from '@ionic/angular';
-import { LoadingController, NavController } from '@ionic/angular';
-
-import { NavParamsService } from 'src/app/services/nav-params.service';
-import { NotificationService } from 'src/app/services/notification.service';
-import { LocalNotifications } from '@capacitor/local-notifications';
+import { Platform } from '@ionic/angular';
 
 import { GeolocationService } from 'src/app/services/geolocation.service';
 import { MapService } from 'src/app/services/map.service';
@@ -22,15 +16,14 @@ import { configureMarkerIconOptions } from 'src/app/utils/marker-config';
   styleUrls: ['./register-workarea.page.scss'],
 })
 export class RegisterWorkareaPage implements OnInit, OnDestroy {
-  private isInsideWorkarea: boolean = false;
   userLocation = { latitude: 0, longitude: 0 };
   workareapolygonPoints: L.LatLngExpression[] = [];
   workareapolygon: L.Polygon | undefined;
   updateInterval: any;
-  public workareaname: string = '';  // Definir o campo workareaname
-  public notifications: string[] = []; 
-  watchId: any;
-  
+  public workareaname: string = '';
+  public notifications: string[] = [];
+  private isInsideWorkArea: boolean = false;  // Estado para verificar se o usuário está dentro ou fora
+
   constructor(
     public platform: Platform,
     public geolocationService: GeolocationService,
@@ -43,95 +36,62 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     }
   }
 
-
   async ngOnInit() {
-    setInterval(async () => {
-      await this.checkIfInsideWorkarea(this.userLocation.latitude, this.userLocation.longitude);
-    }, 3000); // 3000 milissegundos = 3 segundos
-
     configureMarkerIconOptions();
     this.userLocation = await this.geolocationService.getUserLocation();
     this.mapService.initMap(this.userLocation.latitude, this.userLocation.longitude, this.workareapolygonPoints);
-  
+
     const map = this.mapService.getMap();
-  
-    if (map) {  // Verificação para garantir que o mapa existe
-      // Adicionar listener de clique no mapa
+
+    if (map) {
       map.on('click', (e: L.LeafletMouseEvent) => {
-        this.onMapClick(e);  // Chama a função quando o mapa é clicado
+        this.onMapClick(e);
       });
     }
-  
+
+    this.startUpdatingUserLocation();
     this.notifications = this.notificationService.getNotifications();
-    this.startWatchingUserLocation();  // Iniciar o acompanhamento contínuo da localização
   }
 
-  async onClickBaterPonto() {
+  ngOnDestroy() {
+    clearInterval(this.updateInterval);
+  }
+
+  startUpdatingUserLocation() {
+    this.updateInterval = setInterval(async () => {
+      this.userLocation = await this.geolocationService.getUserLocation();
+      this.mapService.moveUserMarker(this.userLocation.latitude, this.userLocation.longitude);
+
+      const isNowInside = this.isMarkerInWorkArea(this.userLocation.latitude, this.userLocation.longitude);
+
+      if (isNowInside && !this.isInsideWorkArea) {
+        // Usuário entrou na workarea
+        this.isInsideWorkArea = true;
+        await this.onEnterWorkArea();
+      } else if (!isNowInside && this.isInsideWorkArea) {
+        // Usuário saiu da workarea
+        this.isInsideWorkArea = false;
+        await this.onExitWorkArea();
+      }
+    }, 5000); // Atualiza a cada 5 segundos
+  }
+
+  async onEnterWorkArea() {
     const permission = await this.notificationService.requestPermissions();
     if (permission.display === 'granted') {
-      const isInside = this.isMarkerInWorkArea(this.userLocation.latitude, this.userLocation.longitude);
-      this.notificationService.sendNotification( this.userLocation.latitude, this.userLocation.longitude, "Você bateu o ponto");
+      this.notificationService.sendNotification(true, this.userLocation.latitude, this.userLocation.longitude, 'Você entrou na área de trabalho. Ponto registrado automaticamente.');
     } else {
       this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
     }
   }
 
-  ngOnDestroy() {
-    this.stopWatchingUserLocation();  // Parar o acompanhamento contínuo da localização
-  }
-
-
-  startWatchingUserLocation() {
-    this.watchId = Geolocation.watchPosition({}, (position, err) => {
-      if (position) {
-        this.userLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-        this.mapService.moveUserMarker(this.userLocation.latitude, this.userLocation.longitude);
-
-        // Verificar se o usuário está dentro da workarea
-        this.checkIfInsideWorkarea(this.userLocation.latitude, this.userLocation.longitude);
-      }
-      if (err) {
-        console.error('Erro ao acompanhar a posição: ', err);
-      }
-    });
-  }
-
-  stopWatchingUserLocation() {
-    if (this.watchId) {
-      Geolocation.clearWatch({ id: this.watchId });
-    }
-  }
-
-  async checkIfInsideWorkarea(latitude: number, longitude: number) {
-
-    console.log("Checando se está dentro do polígono");
-    const currentlyInside = this.isMarkerInWorkArea(latitude, longitude);
+  async onExitWorkArea() {
     const permission = await this.notificationService.requestPermissions();
-
-    if (currentlyInside && !this.isInsideWorkarea) {
-      console.log("Entrou na Zona de Trabalho!");
-      // O usuário entrou na área de trabalho
-      this.isInsideWorkarea = true;
-      if (permission.display === 'granted') {
-        const isInside = this.isMarkerInWorkArea(this.userLocation.latitude, this.userLocation.longitude);
-        this.notificationService.sendNotification( latitude, longitude, 'Você entrou na área de trabalho.');
-      } else {
-        this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
-      }
-
-    } else if (!currentlyInside && this.isInsideWorkarea) {
-      console.log("Saiu na Zona de Trabalho!");
-      // O usuário saiu da área de trabalho
-      this.isInsideWorkarea = false;
-      this.notificationService.sendNotification( latitude, longitude, 'Você saiu da área de trabalho.');
+    if (permission.display === 'granted') {
+      this.notificationService.sendNotification(false, this.userLocation.latitude, this.userLocation.longitude, 'Você saiu da área de trabalho.');
+    } else {
+      this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
     }
-
-
-    
-
   }
 
   isMarkerInWorkArea(latitude?: number, longitude?: number): boolean {
@@ -162,27 +122,37 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
   }
 
   onMapClick(e: L.LeafletMouseEvent) {
-    const latlng = e.latlng; // Obter coordenadas do clique
-    this.workareapolygonPoints.push([latlng.lat, latlng.lng]); // Adicionar ao array de pontos do polígono
+    const latlng = e.latlng;
+    this.workareapolygonPoints.push([latlng.lat, latlng.lng]);
 
-    // Atualizar o polígono no mapa
     this.updateWorkareaPolygon(this.workareapolygonPoints);
   }
 
-  // Atualizar o polígono desenhado no mapa
   updateWorkareaPolygon(points: LatLngExpression[]) {
     const map = this.mapService.getMap();
-  
+
     if (map && this.workareapolygon) {
-      map.removeLayer(this.workareapolygon);  // Aqui, o 'map' é garantido como 'L.Map'
+      map.removeLayer(this.workareapolygon);
     }
-  
-    if (map) {  // Verificação para garantir que o mapa existe
+
+    if (map) {
       this.workareapolygon = L.polygon(points, {
         color: 'blue',
         fillColor: 'blue',
         fillOpacity: 0.2,
-      }).addTo(map);  // Agora o 'map' é seguro para uso
+      }).addTo(map);
     }
   }
+
+  async onClickBaterPonto() {
+    const permission = await this.notificationService.requestPermissions();
+    if (permission.display === 'granted') {
+      const isInside = this.isMarkerInWorkArea(this.userLocation.latitude, this.userLocation.longitude);
+      this.notificationService.sendNotification(isInside, this.userLocation.latitude, this.userLocation.longitude,"Ponto Batido ");
+    } else {
+      this.notificationService.showAlert('Permissão Negada', 'Você precisa permitir notificações.');
+    }
+  }
+
 }
+
