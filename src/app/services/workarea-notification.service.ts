@@ -11,10 +11,14 @@ export class WorkareaNotificationService {
   constructor(public alertController: AlertController) {}
 
   async requestPermissions() {
-    return await LocalNotifications.requestPermissions();
+    if (this.isDesktop()) {
+      return Notification.requestPermission();
+    } else {
+      return await LocalNotifications.requestPermissions();
+    }
   }
 
-  async sendNotification(isInside: boolean, latitude: number, longitude: number,text:string) {
+  async sendNotification(isInside: boolean, latitude: number, longitude: number, text: string) {
     const notificationMessage = isInside
       ? ` ${text} Localização: ${latitude}, ${longitude}`
       : `${text} Localização: ${latitude}, ${longitude}`;
@@ -22,16 +26,22 @@ export class WorkareaNotificationService {
     // Armazena a mensagem no log
     this.notificationsLog.push(notificationMessage);
 
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          title: 'Registro de Ponto',
-          body: notificationMessage,
-          id: 1,
-          schedule: { at: new Date(Date.now() + 1000 * 5) }, // 5 seconds delay
-        },
-      ],
-    });
+    if (this.isDesktop()) {
+      if (Notification.permission === 'granted') {
+        new Notification('Registro de Ponto', { body: notificationMessage });
+      }
+    } else {
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: 'Registro de Ponto',
+            body: notificationMessage,
+            id: 1,
+            schedule: { at: new Date(Date.now() + 1000 * 5) }, // 5 seconds delay
+          },
+        ],
+      });
+    }
   }
 
   async showAlert(header: string, message: string) {
@@ -47,5 +57,8 @@ export class WorkareaNotificationService {
   getNotifications() {
     return this.notificationsLog;
   }
-}
 
+  private isDesktop(): boolean {
+    return window.matchMedia("(min-width: 768px)").matches; // Ajuste o valor conforme necessário
+  }
+}
