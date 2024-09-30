@@ -28,6 +28,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
   updateInterval: any;
   public workareaname: string = '';  // Definir o campo workareaname
   public notifications: string[] = []; 
+  watchId: any;
   
   constructor(
     public platform: Platform,
@@ -40,6 +41,7 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
       Geolocation.requestPermissions();
     }
   }
+
 
   async ngOnInit() {
     configureMarkerIconOptions();
@@ -55,8 +57,8 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
       });
     }
   
-    this.startUpdatingUserLocation();
     this.notifications = this.notificationService.getNotifications();
+    this.startWatchingUserLocation();  // Iniciar o acompanhamento contínuo da localização
   }
 
   async onClickBaterPonto() {
@@ -70,15 +72,31 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    clearInterval(this.updateInterval);
+    this.stopWatchingUserLocation();  // Parar o acompanhamento contínuo da localização
   }
 
-  startUpdatingUserLocation() {
-    this.updateInterval = setInterval(async () => {
-      this.userLocation = await this.geolocationService.getUserLocation();
-      this.mapService.moveUserMarker(this.userLocation.latitude, this.userLocation.longitude);
-    }, 5000);
+
+  startWatchingUserLocation() {
+    this.watchId = Geolocation.watchPosition({}, (position, err) => {
+      if (position) {
+        this.userLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        this.mapService.moveUserMarker(this.userLocation.latitude, this.userLocation.longitude);
+      }
+      if (err) {
+        console.error('Erro ao acompanhar a posição: ', err);
+      }
+    });
   }
+
+  stopWatchingUserLocation() {
+    if (this.watchId) {
+      Geolocation.clearWatch({ id: this.watchId });
+    }
+  }
+
   
   isMarkerInWorkArea(latitude?: number, longitude?: number): boolean {
     if (!latitude || !longitude) {
