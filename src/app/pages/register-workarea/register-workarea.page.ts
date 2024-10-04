@@ -16,6 +16,9 @@ import { MapService } from 'src/app/services/map.service';
 import { WorkareaNotificationService } from 'src/app/services/workarea-notification.service';
 import { configureMarkerIconOptions } from 'src/app/utils/marker-config';
 
+//usar para implementar background tasks
+import { BackgroundRunner } from '@capacitor/background-runner';
+
 @Component({
   selector: 'app-register-workarea',
   templateUrl: './register-workarea.page.html',
