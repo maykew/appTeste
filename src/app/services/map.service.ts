@@ -53,6 +53,7 @@ export class MapService {
 
   moveUserMarker(latitude: number, longitude: number) {
     if (this.userMarker) {
+      console.log("Movendo o user marker para: "+latitude+"/"+ longitude);
       this.userMarker.setLatLng([latitude, longitude]);
       this.userMarker.openPopup();
     }

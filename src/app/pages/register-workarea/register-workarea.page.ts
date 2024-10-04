@@ -37,7 +37,6 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     configureMarkerIconOptions();
-    this.geolocationService.registerComponent(this);
     this.userLocation = await this.geolocationService.getUserLocation();
     this.mapService.initMap(this.userLocation.latitude, this.userLocation.longitude, this.workareapolygonPoints);
     
@@ -47,13 +46,11 @@ export class RegisterWorkareaPage implements OnInit, OnDestroy {
     }
 
     this.startUpdatingUserLocation();
-    await this.geolocationService.addWatcher();
     this.notifications = this.notificationService.getNotifications();
   }
 
   ngOnDestroy() {
     clearInterval(this.updateInterval);
-    this.geolocationService.removeWatcher();
   }
 
   startUpdatingUserLocation() {

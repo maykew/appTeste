@@ -8,10 +8,11 @@ import { initializeApp } from "firebase/app";
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  
+
   constructor(private faceApiService: FaceapiService) {}
 
   async ngOnInit() {
+    // Configuração do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCl-oxOb7mh9hpCFhm7pqfVLdKfyvCydDk",
       authDomain: "vepema-demo.firebaseapp.com",
@@ -24,6 +25,10 @@ export class AppComponent implements OnInit {
     
     const app = initializeApp(firebaseConfig);
     
+    // Carregar modelos de Face API
     await this.faceApiService.loadModels();
+
   }
+
+
 }

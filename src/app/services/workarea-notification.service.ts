@@ -35,8 +35,8 @@ export class WorkareaNotificationService {
   // Enviar notificação
   async sendNotification(isInside: boolean, latitude: number, longitude: number, text: string) {
     const notificationMessage = isInside
-      ? ` ${text}  \n Localização: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-      : `${text}  \n Localização: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+      ? ` ${text}  \n Localização: ${latitude.toFixed(20)}, ${longitude.toFixed(20)}`
+      : `${text}  \n Localização: ${latitude.toFixed(20)}, ${longitude.toFixed(20)}`;
 
     // Armazena a mensagem no log
     this.notificationsLog.push(notificationMessage);
